@@ -109,7 +109,7 @@ export interface ChannelConfig {
 }
 
 export interface LLMConfig {
-  provider: 'openai' | 'anthropic' | 'deepseek' | 'local';
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'minimax' | 'local';
   apiKey?: string;
   baseUrl?: string;
   model: string;

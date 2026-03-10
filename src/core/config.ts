@@ -229,10 +229,9 @@ gateway:
 
 # LLM 配置
 llm:
-  provider: deepseek  # 可选: openai, anthropic, deepseek, local
-  model: deepseek-chat
-  apiKey: \${DEEPSEEK_API_KEY}  # 从环境变量读取
-  baseUrl: \${DEEPSEEK_BASE_URL}  # 可选，自定义 API 地址
+  provider: minimax  # 可选: openai, anthropic, deepseek, minimax, local
+  model: abab6.5s-chat  # minimax 模型
+  apiKey: \${MINIMAX_API_KEY}  # 从环境变量读取
   temperature: 0.7
   maxTokens: 2000
 
@@ -285,9 +284,26 @@ skills:
 
     // LLM
     const llmConfig: Partial<LLMConfig> = {};
-    if (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY) {
-      llmConfig.apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY;
+    
+    // 检查各种 API Key
+    if (process.env.MINIMAX_API_KEY) {
+      llmConfig.provider = 'minimax';
+      llmConfig.apiKey = process.env.MINIMAX_API_KEY;
+      llmConfig.model = process.env.MINIMAX_MODEL || 'abab6.5s-chat';
+    } else if (process.env.DEEPSEEK_API_KEY) {
+      llmConfig.provider = 'deepseek';
+      llmConfig.apiKey = process.env.DEEPSEEK_API_KEY;
+      llmConfig.model = process.env.BESTCLAW_MODEL || 'deepseek-chat';
+    } else if (process.env.OPENAI_API_KEY) {
+      llmConfig.provider = 'openai';
+      llmConfig.apiKey = process.env.OPENAI_API_KEY;
+      llmConfig.model = process.env.BESTCLAW_MODEL || 'gpt-3.5-turbo';
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      llmConfig.provider = 'anthropic';
+      llmConfig.apiKey = process.env.ANTHROPIC_API_KEY;
+      llmConfig.model = process.env.BESTCLAW_MODEL || 'claude-3-haiku-20240307';
     }
+    
     if (process.env.DEEPSEEK_BASE_URL) {
       llmConfig.baseUrl = process.env.DEEPSEEK_BASE_URL;
     }

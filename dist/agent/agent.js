@@ -74,6 +74,8 @@ export class Agent {
                 return this.callDeepSeek(messages, apiKey, baseUrl, model, temperature, maxTokens);
             case 'anthropic':
                 return this.callAnthropic(messages, apiKey, baseUrl, model, temperature, maxTokens);
+            case 'minimax':
+                return this.callMinimax(messages, apiKey, baseUrl, model, temperature, maxTokens);
             case 'local':
                 return this.callLocalModel(messages, baseUrl, model, temperature, maxTokens);
             default:
@@ -160,6 +162,30 @@ export class Agent {
         }
         const data = await response.json();
         return data.content[0]?.text || '';
+    }
+    /**
+     * 调用 Minimax API
+     */
+    async callMinimax(messages, apiKey, baseUrl, model, temperature, maxTokens) {
+        const url = baseUrl || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model || 'abab6.5s-chat',
+                messages,
+                temperature,
+                max_tokens: maxTokens
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Minimax API error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.choices[0]?.message?.content || '';
     }
     /**
      * 调用本地模型

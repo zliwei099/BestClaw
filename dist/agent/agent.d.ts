@@ -38,6 +38,10 @@ export declare class Agent {
      */
     private callAnthropic;
     /**
+     * 调用 Minimax API
+     */
+    private callMinimax;
+    /**
      * 调用本地模型
      */
     private callLocalModel;

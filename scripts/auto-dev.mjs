@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * BestClaw Auto-Dev Runner
- * 自动开发迭代脚本
+ * 自动开发迭代脚本 - 带飞书通知
  */
 
 import { execSync } from 'child_process';
@@ -85,6 +85,21 @@ const roadmap = [
   }
 ];
 
+// 飞书通知器 (动态导入)
+let notifier = null;
+
+async function getNotifier() {
+  if (!notifier) {
+    try {
+      const { FeishuNotifier } = await import('../src/utils/feishu-notifier.js');
+      notifier = new FeishuNotifier(PROJECT_ROOT);
+    } catch (e) {
+      console.log('Feishu notifier not available');
+    }
+  }
+  return notifier;
+}
+
 function loadState() {
   if (existsSync(STATE_FILE)) {
     return JSON.parse(readFileSync(STATE_FILE, 'utf-8'));
@@ -151,6 +166,17 @@ async function runDevIteration() {
   const task = getNextTask(state);
   if (!task) {
     console.log('✅ All tasks completed! Moving to next phase...');
+    
+    // 发送通知
+    const notifier = await getNotifier();
+    if (notifier?.isEnabled()) {
+      await notifier.notify({
+        title: 'BestClaw 阶段完成',
+        content: `**阶段**: ${state.currentPhase}\n\n✅ 所有任务已完成！即将进入下一阶段。`,
+        type: 'success'
+      });
+    }
+    
     // 切换到下一阶段
     const phases = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
     const currentIndex = phases.indexOf(state.currentPhase);
@@ -169,22 +195,38 @@ async function runDevIteration() {
   state.inProgressTask = task.id;
   saveState(state);
   
-  // 4. 更新进度文档
+  // 4. 发送飞书通知
+  const notifier = await getNotifier();
+  if (notifier?.isEnabled()) {
+    await notifier.notifyIterationPlanned(task.title, task.phase);
+  }
+  
+  // 5. 更新进度文档
   updateProgressFile(task, '进行中');
   
-  // 5. 生成开发提示
+  // 6. 生成开发提示
   const prompt = generateDevPrompt(task);
   console.log('📝 Generated development prompt:\n');
   console.log(prompt);
   console.log('\n---\n');
   
-  // 6. 保存任务提示到文件
+  // 7. 保存任务提示到文件
   const taskFile = join(PROJECT_ROOT, '.current-task.md');
   writeFileSync(taskFile, prompt);
   
   console.log('✨ Ready for development!');
   console.log(`\n💡 To execute this task, run:`);
   console.log(`   node scripts/execute-task.mjs`);
+  
+  // 8. 再次发送通知（包含详细信息）
+  if (notifier?.isEnabled()) {
+    await notifier.notify({
+      title: 'BestClaw 准备开发',
+      content: `**任务**: ${task.title}\n\n**描述**: ${task.description}\n\n**阶段**: ${task.phase}\n\n⏱️ 时间: ${new Date().toLocaleString()}`,
+      type: 'info',
+      taskName: task.title
+    });
+  }
   
   state.lastIteration = new Date().toISOString();
   saveState(state);

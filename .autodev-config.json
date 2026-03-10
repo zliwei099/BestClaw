@@ -14,8 +14,16 @@
     "autoExecute": false,
     "requireApproval": true,
     "maxIterationsPerDay": 24,
-    "notificationChannel": "last",
+    "notificationChannel": "feishu",
     "logFile": "/tmp/bestclaw-cron.log"
+  },
+  "notifications": {
+    "feishu": {
+      "enabled": false,
+      "webhook": "",
+      "userId": "",
+      "chatId": ""
+    }
   },
   "schedule": {
     "planning": "每小时整点",

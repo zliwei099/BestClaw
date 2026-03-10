@@ -128,6 +128,7 @@ export class BestClaw {
 // 导出所有模块
 export * from './types.js';
 export * from './core/gateway.js';
+export * from './core/config.js';
 export * from './agent/agent.js';
 export * from './skills/skills-manager.js';
 export * from './channels/channel.js';

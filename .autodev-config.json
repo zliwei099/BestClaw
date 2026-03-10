@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "name": "BestClaw Auto-Dev System",
+  "cronJobs": [
+    {
+      "id": "bestclaw-plan-task",
+      "name": "BestClaw 自动规划任务",
+      "schedule": "0 * * * *",
+      "description": "每小时自动规划下一个开发任务",
+      "status": "active"
+    }
+  ],
+  "settings": {
+    "autoExecute": false,
+    "requireApproval": true,
+    "maxIterationsPerDay": 24,
+    "notificationChannel": "last",
+    "logFile": "/tmp/bestclaw-cron.log"
+  },
+  "schedule": {
+    "planning": "每小时整点",
+    "development": "根据任务复杂度",
+    "review": "每次提交后",
+    "documentation": "每次迭代后"
+  }
+}

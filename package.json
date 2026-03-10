@@ -1,0 +1,28 @@
+{
+  "name": "bestclaw",
+  "version": "1.0.0",
+  "description": "BestClaw - 简化版 OpenClaw AI Agent 框架",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "vitest"
+  },
+  "keywords": ["ai", "agent", "automation", "gateway"],
+  "author": "BestClaw Team",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "yaml": "^2.4.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

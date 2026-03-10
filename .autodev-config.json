@@ -19,10 +19,8 @@
   },
   "notifications": {
     "feishu": {
-      "enabled": false,
-      "webhook": "",
-      "userId": "",
-      "chatId": ""
+      "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/97ac7296-e224-451c-81e0-97eff543d7a5",
+      "enabled": true
     }
   },
   "schedule": {

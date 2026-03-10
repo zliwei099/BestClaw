@@ -19,7 +19,7 @@ let startTime = Date.now();
 async function getNotifier() {
   if (!notifier) {
     try {
-      const { FeishuNotifier } = await import('../src/utils/feishu-notifier.js');
+      const { FeishuNotifier } = await import('../dist/utils/feishu-notifier.js');
       notifier = new FeishuNotifier(PROJECT_ROOT);
     } catch (e) {
       console.log('Feishu notifier not available');

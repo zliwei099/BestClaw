@@ -81,7 +81,7 @@ async function setupWebhook(webhookUrl) {
 async function testNotification() {
   console.log('🧪 测试飞书通知...\n');
   
-  const { FeishuNotifier } = await import('../src/utils/feishu-notifier.js');
+  const { FeishuNotifier } = await import('../dist/utils/feishu-notifier.js');
   const notifier = new FeishuNotifier(PROJECT_ROOT);
   
   if (!notifier.isEnabled()) {

@@ -6,6 +6,7 @@ import { Gateway } from './core/gateway.js';
 import { Agent } from './agent/agent.js';
 import { SkillsManager } from './skills/skills-manager.js';
 import { ChannelsManager, CLIChannel } from './channels/channel.js';
+import { getLogger, Logger } from './utils/logger.js';
 import type { Config, Message, Session, AgentResponse } from './types.js';
 
 export interface BestClawOptions {
@@ -18,9 +19,11 @@ export class BestClaw {
   public skills: SkillsManager;
   public channels: ChannelsManager;
   private config: Config;
+  private logger: Logger;
 
   constructor(options: BestClawOptions) {
     this.config = options.config;
+    this.logger = getLogger('BestClaw');
     
     // 初始化核心组件
     this.gateway = new Gateway(this.config);
@@ -38,7 +41,7 @@ export class BestClaw {
    * 启动 BestClaw
    */
   async start(): Promise<void> {
-    console.log('🦞 Starting BestClaw...\n');
+    this.logger.info('Starting BestClaw...');
 
     // 初始化技能系统
     await this.skills.initialize();
@@ -55,19 +58,19 @@ export class BestClaw {
     // 注册并连接渠道
     await this.setupChannels();
 
-    console.log('\n✅ BestClaw is ready!\n');
+    this.logger.info('BestClaw is ready!');
   }
 
   /**
    * 停止 BestClaw
    */
   async stop(): Promise<void> {
-    console.log('\n🛑 Stopping BestClaw...');
+    this.logger.info('Stopping BestClaw...');
     
     await this.channels.disconnectAll();
     await this.gateway.stop();
     
-    console.log('✅ BestClaw stopped');
+    this.logger.info('BestClaw stopped');
   }
 
   /**
@@ -83,7 +86,7 @@ export class BestClaw {
         // 发送响应
         await this.sendResponse(session, response);
       } catch (error) {
-        console.error('Error processing message:', error);
+        this.logger.error('Error processing message', { error, sessionId: session.id });
         await this.sendResponse(session, {
           content: '抱歉，处理消息时出现了错误。'
         });
@@ -132,3 +135,4 @@ export * from './core/config.js';
 export * from './agent/agent.js';
 export * from './skills/skills-manager.js';
 export * from './channels/channel.js';
+export * from './utils/logger.js';

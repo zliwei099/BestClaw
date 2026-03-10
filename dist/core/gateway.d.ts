@@ -9,6 +9,7 @@ export declare class Gateway extends EventEmitter {
     private handlers;
     private config;
     private started;
+    private logger;
     constructor(config: Config);
     /**
      * 启动网关

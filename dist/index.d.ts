@@ -15,6 +15,7 @@ export declare class BestClaw {
     skills: SkillsManager;
     channels: ChannelsManager;
     private config;
+    private logger;
     constructor(options: BestClawOptions);
     /**
      * 启动 BestClaw
@@ -43,4 +44,5 @@ export * from './core/config.js';
 export * from './agent/agent.js';
 export * from './skills/skills-manager.js';
 export * from './channels/channel.js';
+export * from './utils/logger.js';
 //# sourceMappingURL=index.d.ts.map

@@ -5,16 +5,19 @@
 
 import type { Message, Session, BestClawEvent, EventType, EventHandler, Config } from '../types.js';
 import { EventEmitter } from 'events';
+import { getLogger, Logger } from '../utils/logger.js';
 
 export class Gateway extends EventEmitter {
   private sessions: Map<string, Session> = new Map();
   private handlers: Map<EventType, EventHandler[]> = new Map();
   private config: Config;
   private started: boolean = false;
+  private logger: Logger;
 
   constructor(config: Config) {
     super();
     this.config = config;
+    this.logger = getLogger('Gateway');
   }
 
   /**
@@ -25,12 +28,12 @@ export class Gateway extends EventEmitter {
       throw new Error('Gateway already started');
     }
 
-    console.log(`🚀 BestClaw Gateway starting on ${this.config.gateway.host}:${this.config.gateway.port}`);
+    this.logger.info(`BestClaw Gateway starting on ${this.config.gateway.host}:${this.config.gateway.port}`);
     
     this.started = true;
     this.emit('started', { timestamp: new Date() });
     
-    console.log('✅ Gateway started successfully');
+    this.logger.info('Gateway started successfully');
   }
 
   /**
@@ -41,12 +44,12 @@ export class Gateway extends EventEmitter {
       return;
     }
 
-    console.log('🛑 Stopping Gateway...');
+    this.logger.info('Stopping Gateway...');
     
     this.started = false;
     this.emit('stopped', { timestamp: new Date() });
     
-    console.log('✅ Gateway stopped');
+    this.logger.info('Gateway stopped');
   }
 
   /**
@@ -57,7 +60,7 @@ export class Gateway extends EventEmitter {
       throw new Error('Gateway not started');
     }
 
-    console.log(`📨 Received message from ${message.sender.name} on ${message.channel.type}`);
+    this.logger.info(`Received message from ${message.sender.name} on ${message.channel.type}`);
     
     // 获取或创建会话
     const session = this.getOrCreateSession(message);
@@ -78,7 +81,7 @@ export class Gateway extends EventEmitter {
       throw new Error(`Session ${sessionId} not found`);
     }
 
-    console.log(`📤 Sending message to ${session.userId}`);
+    this.logger.info(`Sending message to ${session.userId}`);
     
     this.emitEvent('message:sent', { 
       sessionId, 
@@ -153,7 +156,7 @@ export class Gateway extends EventEmitter {
       try {
         handler(event);
       } catch (error) {
-        console.error(`Error in event handler for ${type}:`, error);
+        this.logger.error(`Error in event handler for ${type}`, { error });
       }
     });
 

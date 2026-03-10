@@ -3,14 +3,17 @@
  * 核心网关 - 消息路由和会话管理
  */
 import { EventEmitter } from 'events';
+import { getLogger } from '../utils/logger.js';
 export class Gateway extends EventEmitter {
     sessions = new Map();
     handlers = new Map();
     config;
     started = false;
+    logger;
     constructor(config) {
         super();
         this.config = config;
+        this.logger = getLogger('Gateway');
     }
     /**
      * 启动网关
@@ -19,10 +22,10 @@ export class Gateway extends EventEmitter {
         if (this.started) {
             throw new Error('Gateway already started');
         }
-        console.log(`🚀 BestClaw Gateway starting on ${this.config.gateway.host}:${this.config.gateway.port}`);
+        this.logger.info(`BestClaw Gateway starting on ${this.config.gateway.host}:${this.config.gateway.port}`);
         this.started = true;
         this.emit('started', { timestamp: new Date() });
-        console.log('✅ Gateway started successfully');
+        this.logger.info('Gateway started successfully');
     }
     /**
      * 停止网关
@@ -31,10 +34,10 @@ export class Gateway extends EventEmitter {
         if (!this.started) {
             return;
         }
-        console.log('🛑 Stopping Gateway...');
+        this.logger.info('Stopping Gateway...');
         this.started = false;
         this.emit('stopped', { timestamp: new Date() });
-        console.log('✅ Gateway stopped');
+        this.logger.info('Gateway stopped');
     }
     /**
      * 接收消息
@@ -43,7 +46,7 @@ export class Gateway extends EventEmitter {
         if (!this.started) {
             throw new Error('Gateway not started');
         }
-        console.log(`📨 Received message from ${message.sender.name} on ${message.channel.type}`);
+        this.logger.info(`Received message from ${message.sender.name} on ${message.channel.type}`);
         // 获取或创建会话
         const session = this.getOrCreateSession(message);
         // 触发事件
@@ -59,7 +62,7 @@ export class Gateway extends EventEmitter {
         if (!session) {
             throw new Error(`Session ${sessionId} not found`);
         }
-        console.log(`📤 Sending message to ${session.userId}`);
+        this.logger.info(`Sending message to ${session.userId}`);
         this.emitEvent('message:sent', {
             sessionId,
             content,
@@ -125,7 +128,7 @@ export class Gateway extends EventEmitter {
                 handler(event);
             }
             catch (error) {
-                console.error(`Error in event handler for ${type}:`, error);
+                this.logger.error(`Error in event handler for ${type}`, { error });
             }
         });
         // 触发 EventEmitter 事件

@@ -6,21 +6,24 @@
 import type { Skill, Tool, SkillContext, SkillConfig } from '../types.js';
 import { readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { getLogger, Logger } from '../utils/logger.js';
 
 export class SkillsManager {
   private skills: Map<string, Skill> = new Map();
   private tools: Map<string, Tool> = new Map();
   private skillsDir: string;
+  private logger: Logger;
 
   constructor(skillsDir: string = './skills') {
     this.skillsDir = skillsDir;
+    this.logger = getLogger('SkillsManager');
   }
 
   /**
    * 初始化技能系统
    */
   async initialize(): Promise<void> {
-    console.log('🔧 Initializing Skills Manager...');
+    this.logger.info('Initializing Skills Manager...');
     
     // 加载内置技能
     await this.loadBuiltInSkills();
@@ -28,7 +31,7 @@ export class SkillsManager {
     // 加载自定义技能
     await this.loadCustomSkills();
     
-    console.log(`✅ Loaded ${this.skills.size} skills with ${this.tools.size} tools`);
+    this.logger.info(`Loaded ${this.skills.size} skills with ${this.tools.size} tools`);
   }
 
   /**
@@ -62,7 +65,7 @@ export class SkillsManager {
         }
       }
     } catch (error) {
-      console.error('Error loading custom skills:', error);
+      this.logger.error('Error loading custom skills', { error });
     }
   }
 
@@ -76,7 +79,7 @@ export class SkillsManager {
         this.registerSkill(skillModule.default as Skill);
       }
     } catch (error) {
-      console.error(`Error loading skill from ${dir}:`, error);
+      this.logger.error(`Error loading skill from ${dir}`, { error });
     }
   }
 
@@ -91,7 +94,7 @@ export class SkillsManager {
       this.tools.set(`${skill.name}:${tool.name}`, tool);
     });
     
-    console.log(`  📦 Registered skill: ${skill.name} (${skill.tools.length} tools)`);
+    this.logger.info(`Registered skill: ${skill.name} (${skill.tools.length} tools)`);
   }
 
   /**
@@ -103,7 +106,7 @@ export class SkillsManager {
       throw new Error(`Skill "${name}" not found`);
     }
 
-    console.log(`🎯 Executing skill: ${name}`);
+    this.logger.info(`Executing skill: ${name}`);
     return skill.execute(context);
   }
 
@@ -140,8 +143,7 @@ export class SkillsManager {
       version: '1.0.0',
       tools: fileTools,
       execute: async (context) => {
-        // 技能级别的执行逻辑
-        console.log('File skill executed');
+        this.logger.debug('File skill executed');
       }
     };
   }
@@ -158,7 +160,7 @@ export class SkillsManager {
       version: '1.0.0',
       tools: execTools,
       execute: async (context) => {
-        console.log('Exec skill executed');
+        this.logger.debug('Exec skill executed');
       }
     };
   }
@@ -175,7 +177,7 @@ export class SkillsManager {
       version: '1.0.0',
       tools: networkTools,
       execute: async (context) => {
-        console.log('Network skill executed');
+        this.logger.debug('Network skill executed');
       }
     };
   }

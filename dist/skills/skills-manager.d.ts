@@ -7,6 +7,7 @@ export declare class SkillsManager {
     private skills;
     private tools;
     private skillsDir;
+    private logger;
     constructor(skillsDir?: string);
     /**
      * 初始化技能系统

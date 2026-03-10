@@ -41,8 +41,8 @@ export class ConfigManager {
                 cli: { enabled: true }
             },
             llm: {
-                provider: 'deepseek',
-                model: 'deepseek-chat',
+                provider: 'minimax',
+                model: 'abab6.5s-chat',
                 temperature: 0.7,
                 maxTokens: 2000
             },

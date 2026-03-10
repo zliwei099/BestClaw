@@ -231,26 +231,50 @@ export class Agent {
   ): Promise<string> {
     const url = baseUrl || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
     
+    // Minimax 需要特定的请求格式
+    const requestBody = {
+      model: model || 'abab6.5s-chat',
+      messages: messages.map(m => ({
+        sender_type: m.role === 'user' ? 'USER' : 'BOT',
+        text: m.content
+      })),
+      temperature: temperature ?? 0.7,
+      max_tokens: maxTokens ?? 2000
+    };
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: model || 'abab6.5s-chat',
-        messages,
-        temperature,
-        max_tokens: maxTokens
-      })
+      body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error(`Minimax API error: ${response.status} ${response.statusText}`);
-    }
-
     const data = await response.json();
-    return data.choices[0]?.message?.content || '';
+    
+    // 检查 Minimax 错误响应
+    if (data.base_resp?.status_code !== 0) {
+      throw new Error(`Minimax API error: ${data.base_resp?.status_msg || 'Unknown error'}`);
+    }
+    
+    // Minimax 成功响应格式处理
+    // 可能的字段: reply, choices[0].message.content, choices[0].text
+    if (data.reply) {
+      return data.reply;
+    }
+    if (data.choices?.[0]?.message?.content) {
+      return data.choices[0].message.content;
+    }
+    if (data.choices?.[0]?.text) {
+      return data.choices[0].text;
+    }
+    if (data.data?.reply) {
+      return data.data.reply;
+    }
+    
+    console.error('Unexpected Minimax response format:', JSON.stringify(data, null, 2));
+    throw new Error('Unexpected Minimax response format');
   }
 
   /**

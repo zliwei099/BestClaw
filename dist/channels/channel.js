@@ -2,6 +2,7 @@
  * BestClaw Channels
  * 渠道抽象层 - 定义消息渠道接口
  */
+export { TelegramChannel } from './telegram.js';
 import { EventEmitter } from 'events';
 export class Channel extends EventEmitter {
     config;
